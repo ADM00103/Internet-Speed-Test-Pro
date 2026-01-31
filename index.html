@@ -1,0 +1,1006 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест скорости интернета - SpeedTest Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin: 0;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            justify-content: center;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s;
+            font-weight: bold;
+            background: #f0f0f0;
+        }
+
+        .tab.active {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .speed-test-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .speed-display {
+            margin: 20px 0;
+        }
+
+        .speed-value {
+            font-size: 4em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .speed-unit {
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 10px 0;
+            position: relative;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            position: relative;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .timer-display {
+            font-size: 1.5em;
+            color: #333;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .status {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 1.1em;
+            color: #666;
+            min-height: 24px;
+        }
+
+        .status.error {
+            color: #f44336;
+        }
+
+        .status.success {
+            color: #4caf50;
+        }
+
+        .server-info {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .server-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .filter-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .server-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .server-item {
+            padding: 12px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+
+        .server-item:hover {
+            background: #e8e8e8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .server-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .server-item .flag {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .server-item .name {
+            font-weight: bold;
+            font-size: 0.85em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .server-item .location {
+            font-size: 0.75em;
+            opacity: 0.9;
+            margin-top: 3px;
+        }
+
+        .server-item .ping {
+            font-size: 0.75em;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-auto {
+            background: linear-gradient(90deg, #4caf50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .btn-auto:hover {
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .result-value.green {
+            color: #4caf50;
+        }
+
+        .result-value.orange {
+            color: #ff9800;
+        }
+
+        .result-value.red {
+            color: #f44336;
+        }
+
+        .history-container {
+            margin-top: 20px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .history-table th {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+
+        .history-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .delete-history {
+            background: #f44336;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .delete-history:hover {
+            background: #d32f2f;
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-history i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .speed-value {
+                font-size: 3em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .server-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .server-filters {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tab {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 SpeedTest Pro</h1>
+            <p class="subtitle">Проверьте скорость вашего интернет-соединения</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="test">Тест скорости</div>
+            <div class="tab" data-tab="history">История тестов</div>
+        </div>
+
+        <div class="tab-content active" id="testTab">
+            <div class="speed-test-container">
+                <div class="speed-display">
+                    <div class="speed-value" id="speedValue">0</div>
+                    <div class="speed-unit">Mbps</div>
+                </div>
+
+                <div class="timer-display" id="timerDisplay">00:00 / 02:00</div>
+
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress" id="progressBar">
+                            <div class="progress-text" id="progressText">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status" id="status">Готов к тестированию</div>
+
+                <div class="server-info">
+                    <div class="server-header">
+                        <h3><i class="fas fa-server"></i> Выберите сервер:</h3>
+                        <button class="btn btn-auto" id="autoSelectBtn">
+                            <i class="fas fa-magic"></i> Авто-выбор
+                        </button>
+                    </div>
+                    
+                    <div class="server-filters">
+                        <button class="filter-btn active" data-filter="all">Все</button>
+                        <button class="filter-btn" data-filter="russia">Россия</button>
+                        <button class="filter-btn" data-filter="europe">Европа</button>
+                        <button class="filter-btn" data-filter="usa">США</button>
+                        <button class="filter-btn" data-filter="asia">Азия</button>
+                    </div>
+                    
+                    <div class="server-list" id="serverList">
+                        <!-- Серверы будут добавлены динамически -->
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" id="startBtn">
+                        <i class="fas fa-play"></i> Начать тест
+                    </button>
+                    <button class="btn btn-secondary" id="stopBtn" disabled>
+                        <i class="fas fa-stop"></i> Остановить
+                    </button>
+                </div>
+            </div>
+
+            <div class="results" id="results">
+                <div class="results-header">
+                    <h3><i class="fas fa-chart-line"></i> Результаты тестирования</h3>
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">
+                        <div class="result-label">Скорость загрузки</div>
+                        <div class="result-value" id="downloadSpeed">0 Mbps</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">Пинг</div>
+                        <div class="result-value green" id="pingValue">0 ms</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">Сервер</div>
+                        <div class="result-value" id="usedServer">-</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">Дата</div>
+                        <div class="result-value" id="testDate">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="historyTab">
+            <div class="history-container">
+                <div class="history-header">
+                    <h3><i class="fas fa-history"></i> История тестов скорости</h3>
+                    <span id="historyCount">0 тестов</span>
+                </div>
+                <div id="historyContent">
+                    <div class="empty-history">
+                        <i class="fas fa-inbox"></i>
+                        <p>История тестов пуста</p>
+                        <p style="font-size: 0.9em; margin-top: 10px;">Проведите первый тест скорости</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // База проверенных серверов с поддержкой CORS
+        const servers = {
+            cloudflare_us: {url:'https://speed.cloudflare.com/__down?bytes=',name:'Cloudflare',location:'США',flag:'🇺🇸',region:'usa',size:25*1024*1024,ping:null},
+            jsdelivr_us: {url:'https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js',name:'jsDelivr',location:'США',flag:'🇺🇸',region:'usa',size:0.1*1024*1024,ping:null},
+            unpkg_us: {url:'https://unpkg.com/react@18/umd/react.production.min.js',name:'UNPKG',location:'США',flag:'🇺🇸',region:'usa',size:0.1*1024*1024,ping:null},
+            
+            jsdelivr_de: {url:'https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js',name:'jsDelivr DE',location:'Германия',flag:'🇩🇪',region:'europe',size:0.1*1024*1024,ping:null},
+            jsdelivr_fr: {url:'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js',name:'jsDelivr FR',location:'Франция',flag:'🇫🇷',region:'europe',size:0.1*1024*1024,ping:null},
+            jsdelivr_uk: {url:'https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js',name:'jsDelivr UK',location:'Великобритания',flag:'🇬🇧',region:'europe',size:0.1*1024*1024,ping:null},
+            
+            jsdelivr_jp: {url:'https://cdn.jsdelivr.net/npm/axios@1.4.0/dist/axios.min.js',name:'jsDelivr JP',location:'Япония',flag:'🇯🇵',region:'asia',size:0.05*1024*1024,ping:null},
+            jsdelivr_sg: {url:'https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js',name:'jsDelivr SG',location:'Сингапур',flag:'🇸🇬',region:'asia',size:0.05*1024*1024,ping:null},
+            
+            yandex_ru: {url:'https://yastatic.net/bootstrap/3.3.7/css/bootstrap.min.css',name:'Yandex',location:'Москва',flag:'🇷🇺',region:'russia',size:0.1*1024*1024,ping:null},
+            vk_ru: {url:'https://vk.com/images/icons/im_reply_arrow.svg',name:'VK',location:'Москва',flag:'🇷🇺',region:'russia',size:0.01*1024*1024,ping:null},
+            mail_ru: {url:'https://img.mail.ru/r/weather/1/i/32/32_01d.png',name:'Mail.ru',location:'Москва',flag:'🇷🇺',region:'russia',size:0.01*1024*1024,ping:null}
+        };
+
+        // DOM элементы
+        const speedValue = document.getElementById('speedValue');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const status = document.getElementById('status');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const autoSelectBtn = document.getElementById('autoSelectBtn');
+        const serverList = document.getElementById('serverList');
+        const results = document.getElementById('results');
+        const downloadSpeed = document.getElementById('downloadSpeed');
+        const pingValue = document.getElementById('pingValue');
+        const usedServer = document.getElementById('usedServer');
+        const testDate = document.getElementById('testDate');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const historyContent = document.getElementById('historyContent');
+        const historyCount = document.getElementById('historyCount');
+
+        // Переменные состояния
+        let currentServer = 'cloudflare_us';
+        let isTesting = false;
+        let testStartTime;
+        let startTime;
+        let totalDataDownloaded = 0;
+        let testDurationMs = 120000; // 120 секунд
+        let speedMeasurements = [];
+        let history = JSON.parse(localStorage.getItem('speedTestHistory')) || [];
+        let currentFilter = 'all';
+
+        // Инициализация
+        init();
+
+        function init() {
+            renderServerList();
+            renderHistory();
+            setupEventListeners();
+            autoSelectServer();
+        }
+
+        function renderServerList() {
+            serverList.innerHTML = '';
+            
+            Object.entries(servers).forEach(([key, server]) => {
+                // Фильтрация по региону
+                if (currentFilter !== 'all' && server.region !== currentFilter) {
+                    return;
+                }
+                
+                const serverItem = document.createElement('div');
+                serverItem.className = 'server-item' + (key === currentServer ? ' active' : '');
+                serverItem.dataset.server = key;
+                serverItem.innerHTML = `
+                    <div class="flag">${server.flag}</div>
+                    <div class="name">${server.name}</div>
+                    <div class="location">${server.location}</div>
+                    ${server.ping !== null && server.ping < 9999 ? `<div class="ping">${server.ping} ms</div>` : ''}
+                `;
+                serverItem.addEventListener('click', () => selectServer(key));
+                serverList.appendChild(serverItem);
+            });
+        }
+
+        function setupEventListeners() {
+            // Выбор сервера
+            serverList.addEventListener('click', (e) => {
+                const serverItem = e.target.closest('.server-item');
+                if (serverItem && !isTesting) {
+                    const serverKey = serverItem.dataset.server;
+                    selectServer(serverKey);
+                }
+            });
+
+            // Начало теста
+            startBtn.addEventListener('click', startSpeedTest);
+
+            // Остановка теста
+            stopBtn.addEventListener('click', stopSpeedTest);
+
+            // Авто-выбор сервера
+            autoSelectBtn.addEventListener('click', autoSelectServer);
+
+            // Переключение вкладок
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.dataset.tab;
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(tabName + 'Tab').classList.add('active');
+                });
+            });
+
+            // Фильтры серверов
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderServerList();
+                });
+            });
+        }
+
+        function selectServer(serverKey) {
+            if (isTesting) return;
+            
+            currentServer = serverKey;
+            document.querySelectorAll('.server-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`.server-item[data-server="${serverKey}"]`).classList.add('active');
+            
+            status.textContent = `Выбран сервер: ${servers[serverKey].name} (${servers[serverKey].location})`;
+            status.className = 'status';
+        }
+
+        // Простое измерение пинга (1 запрос)
+        function measurePing(url) {
+            return new Promise((resolve) => {
+                const startTime = Date.now();
+                fetch(url + '?_=' + Date.now(), { 
+                    method: 'GET',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    credentials: 'omit'
+                })
+                .then(() => {
+                    const ping = Date.now() - startTime;
+                    resolve(ping);
+                })
+                .catch(() => {
+                    resolve(9999); // Сервер недоступен
+                });
+            });
+        }
+
+        function autoSelectServer() {
+            status.textContent = 'Измерение пинга...';
+            status.className = 'status';
+            
+            const serverKeys = Object.keys(servers);
+            const testServers = serverKeys.slice(0, 5);
+            const pingPromises = [];
+            
+            testServers.forEach(key => {
+                pingPromises.push(
+                    measurePing(servers[key].url).then(ping => {
+                        servers[key].ping = ping;
+                        return { key, ping };
+                    })
+                );
+            });
+            
+            Promise.all(pingPromises).then(results => {
+                results.sort((a, b) => a.ping - b.ping);
+                const bestServer = results[0];
+                
+                if (bestServer.ping < 5000) {
+                    selectServer(bestServer.key);
+                    status.textContent = `✅ Выбран: ${servers[bestServer.key].name} (${bestServer.ping}ms)`;
+                    status.className = 'status success';
+                } else {
+                    status.textContent = '⚠️ Все серверы недоступны';
+                    status.className = 'status error';
+                }
+                
+                renderServerList();
+            });
+        }
+
+        function startSpeedTest() {
+            if (isTesting) return;
+
+            isTesting = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            autoSelectBtn.disabled = true;
+            results.style.display = 'none';
+            
+            testStartTime = Date.now();
+            startTime = Date.now();
+            totalDataDownloaded = 0;
+            speedMeasurements = [];
+            
+            status.textContent = '🚀 Тестирование скорости...';
+            status.className = 'status';
+            speedValue.textContent = '0';
+            
+            // Запуск таймера
+            updateTimer();
+            
+            // Сначала измеряем пинг
+            measurePing(servers[currentServer].url).then(ping => {
+                // Запускаем тест скорости
+                testDownloadSpeed(ping);
+            });
+        }
+
+        function stopSpeedTest() {
+            if (!isTesting) return;
+
+            isTesting = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            autoSelectBtn.disabled = false;
+            
+            // Показать результаты
+            showResults();
+        }
+
+        function testDownloadSpeed(initialPing) {
+            if (!isTesting) return;
+            
+            const server = servers[currentServer];
+            const timestamp = Date.now();
+            let testUrl = server.url;
+            
+            // Формируем правильный URL
+            if (server.url.includes('speed.cloudflare.com')) {
+                testUrl += server.size;
+            } else {
+                testUrl += '?_=' + timestamp;
+            }
+            
+            fetch(testUrl, { 
+                cache: 'no-store',
+                mode: 'cors',
+                credentials: 'omit'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const dataSize = blob.size;
+                totalDataDownloaded += dataSize;
+                
+                const elapsed = Date.now() - startTime;
+                const speedBps = (totalDataDownloaded * 8) / (elapsed / 1000);
+                const speedMbps = speedBps / 1000000;
+                
+                speedMeasurements.push(speedMbps);
+                
+                // Обновление отображения скорости (среднее из последних 5 замеров)
+                const recentSpeeds = speedMeasurements.slice(-5);
+                const avgSpeed = recentSpeeds.reduce((a, b) => a + b, 0) / recentSpeeds.length;
+                speedValue.textContent = avgSpeed.toFixed(2);
+                
+                const progress = Math.min((elapsed / testDurationMs) * 100, 100);
+                progressBar.style.width = `${progress}%`;
+                progressText.textContent = `${Math.round(progress)}%`;
+                
+                // Проверка времени теста
+                if (Date.now() - testStartTime < testDurationMs && isTesting) {
+                    testDownloadSpeed(initialPing);
+                } else if (isTesting) {
+                    stopSpeedTest();
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка тестирования:', error);
+                if (isTesting) {
+                    status.textContent = '⚠️ Ошибка: ' + error.message;
+                    status.className = 'status error';
+                    stopSpeedTest();
+                }
+            });
+        }
+
+        function updateTimer() {
+            if (!isTesting) return;
+            
+            const elapsed = Date.now() - testStartTime;
+            const remaining = Math.max(0, testDurationMs - elapsed);
+            
+            const elapsedMinutes = Math.floor(elapsed / 60000);
+            const elapsedSeconds = Math.floor((elapsed % 60000) / 1000);
+            const remainingMinutes = Math.floor(remaining / 60000);
+            const remainingSeconds = Math.floor((remaining % 60000) / 1000);
+            
+            timerDisplay.textContent = 
+                `${String(elapsedMinutes).padStart(2, '0')}:${String(elapsedSeconds).padStart(2, '0')} / ` +
+                `${String(remainingMinutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+            
+            setTimeout(updateTimer, 1000);
+        }
+
+        function showResults() {
+            // Берем медиану из всех замеров для точности
+            speedMeasurements.sort((a, b) => a - b);
+            const medianIndex = Math.floor(speedMeasurements.length / 2);
+            const finalSpeedMbps = speedMeasurements.length > 0 ? 
+                (speedMeasurements.length % 2 === 0 ? 
+                    (speedMeasurements[medianIndex - 1] + speedMeasurements[medianIndex]) / 2 : 
+                    speedMeasurements[medianIndex]) : 0;
+            
+            const elapsed = Date.now() - testStartTime;
+            
+            // Обновление результатов
+            downloadSpeed.textContent = finalSpeedMbps.toFixed(2) + ' Mbps';
+            pingValue.textContent = servers[currentServer].ping ? servers[currentServer].ping.toFixed(0) + ' ms' : 'N/A';
+            usedServer.textContent = `${servers[currentServer].name} (${servers[currentServer].location})`;
+            testDate.textContent = new Date().toLocaleString('ru-RU');
+            
+            // Цветовые индикаторы
+            if (finalSpeedMbps < 10) {
+                downloadSpeed.className = 'result-value red';
+            } else if (finalSpeedMbps < 50) {
+                downloadSpeed.className = 'result-value orange';
+            } else {
+                downloadSpeed.className = 'result-value green';
+            }
+            
+            results.style.display = 'block';
+            status.textContent = '✅ Тест завершен!';
+            status.className = 'status success';
+            
+            // Сохранение в историю
+            saveToHistory({
+                date: new Date().toISOString(),
+                download: finalSpeedMbps,
+                ping: servers[currentServer].ping || 0,
+                server: servers[currentServer].name,
+                location: servers[currentServer].location,
+                duration: elapsed / 1000
+            });
+        }
+
+        function saveToHistory(data) {
+            history.unshift(data);
+            if (history.length > 50) {
+                history.pop();
+            }
+            localStorage.setItem('speedTestHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            historyCount.textContent = `${history.length} ${getPlural(history.length, ['тест', 'теста', 'тестов'])}`;
+            
+            if (history.length === 0) {
+                historyContent.innerHTML = `
+                    <div class="empty-history">
+                        <i class="fas fa-inbox"></i>
+                        <p>История тестов пуста</p>
+                        <p style="font-size: 0.9em; margin-top: 10px;">Проведите первый тест скорости</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Дата и время</th>
+                            <th>Скорость</th>
+                            <th>Пинг</th>
+                            <th>Сервер</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            history.forEach((item, index) => {
+                const date = new Date(item.date);
+                html += `
+                    <tr>
+                        <td>${date.toLocaleString('ru-RU')}</td>
+                        <td><strong>${item.download.toFixed(2)} Mbps</strong></td>
+                        <td>${item.ping.toFixed(0)} ms</td>
+                        <td>${item.server} (${item.location})</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            historyContent.innerHTML = html;
+        }
+
+        function getPlural(number, titles) {
+            const cases = [2, 0, 1, 1, 1, 2];
+            return titles[(number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]];
+        }
+    </script>
+</body>
+</html>
